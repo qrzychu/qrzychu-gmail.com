@@ -29,6 +29,7 @@
         <StackPanel VerticalAlignment="Top"  DataContext="{Binding ElementName=Root, Path=ViewModel}" Margin="40">
             <TextBox Text="{Binding ElementName=Root, Path=ViewModel.FilterText, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock>Filtered:</TextBlock>
+            <TextBlock Text="{Binding FilteredCount}"/>
             <ItemsControl ItemsSource="{Binding FilteredChildren}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

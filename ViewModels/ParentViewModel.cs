@@ -18,6 +18,7 @@ namespace RxUI_Sample.ViewModels
         private ReadOnlyObservableCollection<ChildViewModel> _childViewModelsView;
         private string _filterText;
         private ReadOnlyObservableCollection<ChildViewModel> _filteredChildren;
+        private ObservableAsPropertyHelper<int> _filterdCount;
 
         public ParentViewModel(IScreen screen)
         {
@@ -51,11 +52,16 @@ namespace RxUI_Sample.ViewModels
 
 
             changeSet
-                .AutoRefresh(x =>x.Text)
-                .AutoRefresh(x =>x.IsSelected)
+                .AutoRefresh(x => x.Text)
+                .AutoRefresh(x => x.IsSelected)
                 .Filter(filterObservable)
                 .Bind(out _filteredChildren)
                 .Subscribe();
+
+            _filterdCount = _filteredChildren.ToObservableChangeSet()
+                .ToCollection() // this can be expensive, because it creates a full list of items after each change, but until you have 100+ items you are good
+                .Select(x => x.Count)
+                .ToProperty(this, x => x.FilteredCount);
                     
 
             AddChild = ReactiveCommand.Create(() => _childViewModels.Add(new ChildViewModel()));
@@ -66,6 +72,8 @@ namespace RxUI_Sample.ViewModels
                 vm.IsSelected = true;
             });
         }
+
+        public int FilteredCount => _filterdCount?.Value ?? 0;
 
         public string FilterText
         {
