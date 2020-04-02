@@ -16,6 +16,8 @@ namespace RxUI_Sample.ViewModels
     {
         private SourceList<ChildViewModel> _childViewModels;
         private ReadOnlyObservableCollection<ChildViewModel> _childViewModelsView;
+        private string _filterText;
+        private ReadOnlyObservableCollection<ChildViewModel> _filteredChildren;
 
         public ParentViewModel(IScreen screen)
         {
@@ -39,10 +41,39 @@ namespace RxUI_Sample.ViewModels
             changeSet.Bind(out _childViewModelsView)
                 .Subscribe();
 
+
+            // filter is reaplied every time this observable fires
+            var filterObservable = this.WhenAnyValue(x => x.FilterText)
+                .Throttle(TimeSpan.FromMilliseconds(50), RxApp.MainThreadScheduler)
+                .Select(text => new Func<ChildViewModel, bool>(vm =>
+                    string.IsNullOrEmpty(text) || (vm.Text?.ToLowerInvariant().Contains(text.ToLowerInvariant()) ?? false) || vm.IsSelected)
+                    );
+
+
+            changeSet
+                .AutoRefresh(x =>x.Text)
+                .AutoRefresh(x =>x.IsSelected)
+                .Filter(filterObservable)
+                .Bind(out _filteredChildren)
+                .Subscribe();
+                    
+
             AddChild = ReactiveCommand.Create(() => _childViewModels.Add(new ChildViewModel()));
 
-            DeleteChild = ReactiveCommand.Create<ChildViewModel>(vm => _childViewModels.Remove(vm));
+            DeleteChild = ReactiveCommand.Create<ChildViewModel>(vm =>
+            {
+                _childViewModels.Remove(vm);
+                vm.IsSelected = true;
+            });
         }
+
+        public string FilterText
+        {
+            get => _filterText;
+            set => this.RaiseAndSetIfChanged(ref _filterText, value);
+        }
+
+        public ReadOnlyObservableCollection<ChildViewModel> FilteredChildren => _filteredChildren;
 
         public ReadOnlyObservableCollection<ChildViewModel> ChildViewModels => _childViewModelsView;
 

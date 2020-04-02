@@ -7,19 +7,42 @@
              mc:Ignorable="d" 
              x:Name="Root"
              >
-    <DockPanel VerticalAlignment="Top" HorizontalAlignment="Center" DataContext="{Binding ElementName=Root, Path=ViewModel}" Margin="40">
-        <Button Command="{Binding AddChild}" DockPanel.Dock="Top">Add</Button>
-        <ItemsControl ItemsSource="{Binding ChildViewModels}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderThickness="1" BorderBrush="Black" Margin="4">
-                        <DockPanel>
-                            <Button Command="{Binding ElementName=Root, Path=ViewModel.DeleteChild}" CommandParameter="{Binding}" DockPanel.Dock="Right" Margin="4">Delete</Button>
-                            <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center">Selected</CheckBox>
-                        </DockPanel>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-    </DockPanel>
+    <UniformGrid HorizontalAlignment="Stretch" Columns="2">
+        <DockPanel VerticalAlignment="Top"  DataContext="{Binding ElementName=Root, Path=ViewModel}" Margin="40">
+            <Button Command="{Binding AddChild}" DockPanel.Dock="Top">Add</Button>
+            <ItemsControl ItemsSource="{Binding ChildViewModels}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="1" BorderBrush="Black" Margin="4">
+                            <DockPanel>
+                                <Button Command="{Binding ElementName=Root, Path=ViewModel.DeleteChild}" CommandParameter="{Binding}" DockPanel.Dock="Right" Margin="4">Delete</Button>
+                                <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" DockPanel.Dock="Right">Selected</CheckBox>
+
+                                <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </DockPanel>
+
+        <StackPanel VerticalAlignment="Top"  DataContext="{Binding ElementName=Root, Path=ViewModel}" Margin="40">
+            <TextBox Text="{Binding ElementName=Root, Path=ViewModel.FilterText, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock>Filtered:</TextBlock>
+            <ItemsControl ItemsSource="{Binding FilteredChildren}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="1" BorderBrush="Black" Margin="4">
+                            <DockPanel>
+                                <Button Command="{Binding ElementName=Root, Path=ViewModel.DeleteChild}" CommandParameter="{Binding}" DockPanel.Dock="Right" Margin="4">Delete</Button>
+                                <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" DockPanel.Dock="Right">Selected</CheckBox>
+
+                                <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </UniformGrid>
 </local:ParentViewBase>
