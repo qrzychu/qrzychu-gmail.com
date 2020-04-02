@@ -16,7 +16,7 @@ namespace RxUI_Sample
         {
             _router = new RoutingState();
 
-            _router.Navigate.Execute(new MainViewModel(this)).Subscribe();
+            _router.Navigate.Execute(new ParentViewModel(this)).Subscribe();
 
             RegisterViews(Locator.CurrentMutable);
         }
