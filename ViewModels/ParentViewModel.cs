@@ -68,12 +68,11 @@ namespace RxUI_Sample.ViewModels
 		        .DisposeMany()
 		        .MergeMany(x => x)
 		        .Merge(_filters.CountChanged.Select(x => Unit.Default))
-		        .Do(unit => { });
+				.Do(unit => { });
 
             changeSet
-                .AutoRefresh(x => x.Text)
-                .AutoRefresh(x => x.IsSelected)
-                .FilterOnObservable(ApplyFilters, TimeSpan.FromMilliseconds(50))
+                .FilterOnObservable(ApplyFilters)
+                .ObserveOnDispatcher()
                 .Bind(out _filteredChildren)
                 .Subscribe();
 
@@ -99,7 +98,8 @@ namespace RxUI_Sample.ViewModels
 
         private IObservable<bool> ApplyFilters(ChildViewModel vm)
         {
-            return _filtersChanged.Select(_ => _allFilters.All(f => f.Predicate?.Invoke(vm) ?? true));
+	        return _filtersChanged.Merge(vm.WhenAnyPropertyChanged().Select(_ => Unit.Default))
+		        .Select(_ => _allFilters.All(f => f.Predicate?.Invoke(vm) ?? false));
         }
 
         public ReactiveCommand<IFilter, Unit> RemoveFilter { get; set; }
